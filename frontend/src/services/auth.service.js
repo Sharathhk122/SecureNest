@@ -15,8 +15,10 @@ class AuthService {
       withCredentials: true
     })
     .then(response => {
-      if (response.data.accessToken) {
+      if (response.data.token) {  // Changed from accessToken to token
         localStorage.setItem('user', JSON.stringify(response.data));
+        // Set default authorization header for future requests
+        this.setAuthHeader(response.data.token);
       }
       return response.data;
     })
@@ -27,6 +29,8 @@ class AuthService {
           errorMessage = error.response.data.message;
         } else if (error.response.status === 401) {
           errorMessage = 'Invalid username or password';
+        } else if (error.response.status === 403) {
+          errorMessage = 'Access forbidden. Check your credentials.';
         } else if (error.response.status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
@@ -37,8 +41,13 @@ class AuthService {
     });
   }
 
+  setAuthHeader(token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+
   logout() {
     localStorage.removeItem('user');
+    delete axios.defaults.headers.common['Authorization'];
   }
 
   register(username, password) {
@@ -51,24 +60,6 @@ class AuthService {
         'Accept': 'application/json'
       },
       withCredentials: true
-    })
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      let errorMessage = 'Registration failed';
-      if (error.response) {
-        if (error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.status === 400) {
-          errorMessage = 'Username is already taken';
-        } else if (error.response.status === 500) {
-          errorMessage = 'Server error. Please try again later.';
-        }
-      } else if (error.request) {
-        errorMessage = 'No response from server. Check your network connection.';
-      }
-      throw new Error(errorMessage);
     });
   }
 
