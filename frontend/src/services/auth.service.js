@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://demo-deploy1-g2kn.onrender.com';
+const API_URL = 'https://demo-deploy1-g2kn.onrender.com/api/auth';
 
 class AuthService {
   login(username, password) {
@@ -26,6 +26,8 @@ class AuthService {
           errorMessage = error.response.data.message;
         } else if (error.response.status === 401) {
           errorMessage = 'Invalid username or password';
+        } else if (error.response.status === 403) {
+          errorMessage = 'Forbidden - check your credentials';
         } else if (error.response.status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
@@ -46,8 +48,26 @@ class AuthService {
       password
     }, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
+    })
+    .catch(error => {
+      let errorMessage = 'Registration failed';
+      if (error.response) {
+        if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.status === 400) {
+          errorMessage = 'Bad request - check your input';
+        } else if (error.response.status === 403) {
+          errorMessage = 'Forbidden - user may already exist';
+        } else if (error.response.status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        }
+      } else if (error.request) {
+        errorMessage = 'No response from server. Check your network connection.';
+      }
+      throw new Error(errorMessage);
     });
   }
 
@@ -57,4 +77,3 @@ class AuthService {
 }
 
 export default new AuthService();
-
