@@ -11,13 +11,14 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/auth.service';
+import { Alert } from '@mui/material';
 
 export default function Register() {
   const navigate = useNavigate();
   const [message, setMessage] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     
@@ -33,32 +34,13 @@ export default function Register() {
       return;
     }
 
-    AuthService.register(username, password)
-      .then((response) => {
-        if (response && response.data) {
-          navigate('/login');
-          window.location.reload();
-        } else {
-          throw new Error('Registration failed');
-        }
-      })
-      .catch((error) => {
-        let resMessage = 'Registration failed';
-        
-        if (error.response) {
-          // Handle HTTP errors
-          resMessage = error.response.data.message || 
-                       error.response.data.error || 
-                       error.response.data || 
-                       'Registration failed';
-        } else if (error.message) {
-          // Handle other errors
-          resMessage = error.message;
-        }
-
-        setLoading(false);
-        setMessage(resMessage);
-      });
+    try {
+      await AuthService.register(username, password);
+      navigate('/login');
+    } catch (error) {
+      setLoading(false);
+      setMessage(error.message || 'Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -120,9 +102,9 @@ export default function Register() {
           </Grid>
         </Box>
         {message && (
-          <Typography color="error" sx={{ mt: 2 }}>
+          <Alert severity="error" sx={{ mt: 2 }}>
             {message}
-          </Typography>
+          </Alert>
         )}
       </Box>
     </Container>
