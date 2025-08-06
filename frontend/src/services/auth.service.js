@@ -11,10 +11,11 @@ class AuthService {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      withCredentials: true
     })
     .then(response => {
-      if (response.data.token) {
+      if (response.data.accessToken) {
         localStorage.setItem('user', JSON.stringify(response.data));
       }
       return response.data;
@@ -26,8 +27,6 @@ class AuthService {
           errorMessage = error.response.data.message;
         } else if (error.response.status === 401) {
           errorMessage = 'Invalid username or password';
-        } else if (error.response.status === 403) {
-          errorMessage = 'Forbidden - check your credentials';
         } else if (error.response.status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
@@ -50,7 +49,11 @@ class AuthService {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      withCredentials: true
+    })
+    .then(response => {
+      return response.data;
     })
     .catch(error => {
       let errorMessage = 'Registration failed';
@@ -58,9 +61,7 @@ class AuthService {
         if (error.response.data && error.response.data.message) {
           errorMessage = error.response.data.message;
         } else if (error.response.status === 400) {
-          errorMessage = 'Bad request - check your input';
-        } else if (error.response.status === 403) {
-          errorMessage = 'Forbidden - user may already exist';
+          errorMessage = 'Username is already taken';
         } else if (error.response.status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
