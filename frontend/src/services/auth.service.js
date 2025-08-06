@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://securelogin-tyer.onrender.com/api/auth';
+const API_URL = 'https://demo-deploy1-g2kn.onrender.com';
 
 class AuthService {
   login(username, password) {
@@ -57,3 +57,4 @@ class AuthService {
 }
 
 export default new AuthService();
+
