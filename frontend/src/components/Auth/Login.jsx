@@ -37,12 +37,14 @@ export default function Login() {
     }
 
     try {
-      await AuthService.login(username, password);
-      navigate('/profile');
-      window.location.reload(); // Ensure the page refreshes to update auth state
+      const response = await AuthService.login(username, password);
+      if (response.token) {
+        navigate('/profile');
+      }
     } catch (error) {
+      setMessage(error.message);
+    } finally {
       setLoading(false);
-      setMessage(error.message || 'Login failed. Please try again.');
     }
   };
 
